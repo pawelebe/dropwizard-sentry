@@ -1,9 +1,9 @@
 # Dropwizard Raven
 
-[![Maven Central](https://img.shields.io/maven-central/v/com.tradier/dropwizard-raven.svg)][mavencentral] [![Build Status](https://travis-ci.org/tradier/dropwizard-raven.svg?branch=master)][travis]
-
-[travis]: https://travis-ci.org/tradier/dropwizard-raven
-[mavencentral]: http://mvnrepository.com/artifact/com.tradier/dropwizard-raven
+[![Build Status](https://travis-ci.org/dhatim/dropwizard-raven.png?branch=master)](https://travis-ci.org/dhatim/dropwizard-raven)
+[![Coverage Status](https://coveralls.io/repos/github/dhatim/dropwizard-raven/badge.svg?branch=master)](https://coveralls.io/github/dhatim/dropwizard-raven?branch=master)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.dhatim/dropwizard-raven/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.dhatim/dropwizard-raven)
+[![Javadoc](https://javadoc-emblem.rhcloud.com/doc/org.dhatim/dropwizard-raven/badge.svg)](http://www.javadoc.io/doc/org.dhatim/dropwizard-raven)
 
 Dropwizard integration for error logging to [Sentry](https://sentry.io).
 
@@ -58,19 +58,19 @@ appenders:
 
 ## Maven Artifacts
 
-This project is available in the [Central Repository](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22com.tradier%22%20AND%20a%3A%22dropwizard-raven%22). To add it to your project simply add the following dependency to your POM:
+This project is available in the [Central Repository](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22org.dhatim%22%20AND%20a%3A%22dropwizard-raven%22). To add it to your project simply add the following dependency to your POM:
 
 ```xml
 <dependency>
-  <groupId>com.tradier</groupId>
+  <groupId>org.dhatim</groupId>
   <artifactId>dropwizard-raven</artifactId>
-  <version>1.0.0-1</version>
+  <version>0.0.1</version>
 </dependency>
 ```
 
 ## Support
 
-Please file bug reports and feature requests in [GitHub issues](https://github.com/tradier/dropwizard-raven/issues).
+Please file bug reports and feature requests in [GitHub issues](https://github.com/dhatim/dropwizard-raven/issues).
 
 ## Acknowledgements
 
