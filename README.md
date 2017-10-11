@@ -64,7 +64,7 @@ This project is available in the [Central Repository](http://search.maven.org/#s
 <dependency>
   <groupId>org.dhatim</groupId>
   <artifactId>dropwizard-raven</artifactId>
-  <version>0.0.1</version>
+  <version>1.2.0-1</version>
 </dependency>
 ```
 
