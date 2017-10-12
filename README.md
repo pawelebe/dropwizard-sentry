@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/dhatim/dropwizard-raven.png?branch=master)](https://travis-ci.org/dhatim/dropwizard-raven)
 [![Coverage Status](https://coveralls.io/repos/github/dhatim/dropwizard-raven/badge.svg?branch=master)](https://coveralls.io/github/dhatim/dropwizard-raven?branch=master)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.dhatim/dropwizard-raven/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.dhatim/dropwizard-raven)
-[![Javadoc](https://javadoc-emblem.rhcloud.com/doc/org.dhatim/dropwizard-raven/badge.svg)](http://www.javadoc.io/doc/org.dhatim/dropwizard-raven)
+[![Javadocs](http://www.javadoc.io/badge/org.dhatim/dropwizard-raven.svg)](http://www.javadoc.io/doc/org.dhatim/dropwizard-raven)
 
 Dropwizard integration for error logging to [Sentry](https://sentry.io).
 
