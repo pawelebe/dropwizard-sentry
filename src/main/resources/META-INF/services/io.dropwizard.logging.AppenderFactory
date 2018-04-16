@@ -1,1 +1,1 @@
-org.dhatim.dropwizard.raven.logging.RavenAppenderFactory
+org.dhatim.dropwizard.sentry.logging.SentryAppenderFactory
