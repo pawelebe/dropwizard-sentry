@@ -26,9 +26,7 @@ public static void main(String[] args) throws Exception {
 
 ### Configuration
 
-The Logback `SentryAppender` can be configured using the provided `SentryConfiguration` class which basically mirrors the appender configuration outlined in [sentry-logback](https://github.com/getsentry/sentry-java/tree/master/sentry-logback).
-
-Include the `sentry` appender in your `config.yml`:
+Include the `sentry` appender in your application's YAML configuration:
 
 ```yaml
 appenders:
@@ -36,14 +34,12 @@ appenders:
     threshold: ERROR
     dsn: https://user:pass@sentry.io/appid
     environment: production
-    extraTags: foo,bar,baz
+    mdcTags: ['foo','bar','baz']
     sentryClientFactory: com.example.SentryClientFactory
     release: 1.0.0
     serverName: 10.0.0.1
-    tags: tag:value,tag2:value
+    extra: {key1:'value1',key2:'value2'}
 ```
-
-### Configuration Settings
 
 | Setting | Default | Description | Example Value |
 |---|---|---|---|
@@ -74,8 +70,4 @@ Please file bug reports and feature requests in [GitHub issues](https://github.c
 
 ## Acknowledgements
 
-Thanks to [gini](https://github.com/gini) for [dropwizard-gelf](https://github.com/gini/dropwizard-gelf) from which much of the original implementation was derived.
-
-## Copyright
-
-Copyright (c) 2014-2016 Tradier Inc. See [LICENSE](LICENSE.md) for detail.
+Thanks to [dropwizard-raven](https://github.com/tradier/dropwizard-raven) from which much of the original implementation was derived.
