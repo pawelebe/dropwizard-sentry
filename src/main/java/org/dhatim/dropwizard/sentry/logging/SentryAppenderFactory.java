@@ -1,4 +1,4 @@
-package org.dhatim.dropwizard.raven.logging;
+package org.dhatim.dropwizard.sentry.logging;
 
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.spi.ILoggingEvent;
@@ -6,20 +6,25 @@ import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.filter.Filter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.getsentry.raven.logback.SentryAppender;
 import static com.google.common.base.Preconditions.checkNotNull;
 import io.dropwizard.logging.AbstractAppenderFactory;
 import io.dropwizard.logging.async.AsyncAppenderFactory;
 import io.dropwizard.logging.filter.LevelFilterFactory;
 import io.dropwizard.logging.layout.LayoutFactory;
+import io.sentry.DefaultSentryClientFactory;
+import io.sentry.SentryClient;
+import io.sentry.SentryClientFactory;
+import io.sentry.logback.SentryAppender;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import javax.validation.constraints.NotNull;
-import org.dhatim.dropwizard.raven.filters.DroppingRavenLoggingFilter;
+import org.dhatim.dropwizard.sentry.filters.DroppingSentryLoggingFilter;
 
-@JsonTypeName("raven")
-public class RavenAppenderFactory extends AbstractAppenderFactory<ILoggingEvent> {
+@JsonTypeName("sentry")
+public class SentryAppenderFactory extends AbstractAppenderFactory<ILoggingEvent> {
 
-    private static final String APPENDER_NAME = "dropwizard-raven";
+    private static final String APPENDER_NAME = "dropwizard-sentry";
 
     @NotNull
     @JsonProperty
@@ -29,10 +34,10 @@ public class RavenAppenderFactory extends AbstractAppenderFactory<ILoggingEvent>
     private Optional<String> environment = Optional.empty();
 
     @JsonProperty
-    private Optional<String> extraTags = Optional.empty();
+    private Optional<Set<String>> mdcTags = Optional.empty();
 
     @JsonProperty
-    private Optional<String> ravenFactory = Optional.empty();
+    private Optional<String> sentryClientFactory = Optional.empty();
 
     @JsonProperty
     private Optional<String> release = Optional.empty();
@@ -41,7 +46,7 @@ public class RavenAppenderFactory extends AbstractAppenderFactory<ILoggingEvent>
     private Optional<String> serverName = Optional.empty();
 
     @JsonProperty
-    private Optional<String> tags = Optional.empty();
+    private Optional<Map<String, Object>> extra = Optional.empty();
 
     public String getDsn() {
         return dsn;
@@ -59,20 +64,20 @@ public class RavenAppenderFactory extends AbstractAppenderFactory<ILoggingEvent>
         this.environment = environment;
     }
 
-    public Optional<String> getExtraTags() {
-        return extraTags;
+    public Optional<Set<String>> getMdcTags() {
+        return mdcTags;
     }
 
-    public void setExtraTags(Optional<String> extraTags) {
-        this.extraTags = extraTags;
+    public void setMdcTags(Optional<Set<String>> mdcTags) {
+        this.mdcTags = mdcTags;
     }
 
-    public Optional<String> getRavenFactory() {
-        return ravenFactory;
+    public Optional<String> getSentryClientFactory() {
+        return sentryClientFactory;
     }
 
-    public void setRavenFactory(Optional<String> ravenFactory) {
-        this.ravenFactory = ravenFactory;
+    public void setSentryClientFactory(Optional<String> sentryClientFactory) {
+        this.sentryClientFactory = sentryClientFactory;
     }
 
     public Optional<String> getRelease() {
@@ -91,12 +96,12 @@ public class RavenAppenderFactory extends AbstractAppenderFactory<ILoggingEvent>
         this.serverName = serverName;
     }
 
-    public Optional<String> getTags() {
-        return tags;
+    public Optional<Map<String, Object>> getExtra() {
+        return extra;
     }
 
-    public void setTags(Optional<String> tags) {
-        this.tags = tags;
+    public void setExtra(Optional<Map<String, Object>> extra) {
+        this.extra = extra;
     }
 
     @Override
@@ -107,17 +112,25 @@ public class RavenAppenderFactory extends AbstractAppenderFactory<ILoggingEvent>
             AsyncAppenderFactory<ILoggingEvent> asyncAppenderFactory) {
         checkNotNull(context);
 
+        SentryClientFactory factory;
+        try {
+            String factoryClassName = sentryClientFactory.orElse(DefaultSentryClientFactory.class.getCanonicalName());
+            Class<? extends SentryClientFactory> factoryClass = Class.forName(factoryClassName).asSubclass(SentryClientFactory.class);
+            factory = factoryClass.newInstance();
+        } catch (ReflectiveOperationException ex) {
+            throw new RuntimeException(ex);
+        }
+        SentryClient sentryClient = SentryClientFactory.sentryClient(dsn, factory);
+
         final SentryAppender appender = new SentryAppender();
         appender.setName(APPENDER_NAME);
         appender.setContext(context);
-        appender.setDsn(dsn);
 
-        environment.ifPresent(appender::setEnvironment);
-        extraTags.ifPresent(appender::setExtraTags);
-        ravenFactory.ifPresent(appender::setRavenFactory);
-        release.ifPresent(appender::setRelease);
-        serverName.ifPresent(appender::setServerName);
-        tags.ifPresent(appender::setTags);
+        environment.ifPresent(sentryClient::setEnvironment);
+        mdcTags.ifPresent(sentryClient::setMdcTags);
+        release.ifPresent(sentryClient::setRelease);
+        serverName.ifPresent(sentryClient::setServerName);
+        extra.ifPresent(sentryClient::setExtra);
 
         appender.addFilter(levelFilterFactory.build(threshold));
         getFilterFactories().stream().forEach(f -> appender.addFilter(f.build()));
@@ -130,7 +143,7 @@ public class RavenAppenderFactory extends AbstractAppenderFactory<ILoggingEvent>
     }
 
     private void addDroppingRavenLoggingFilter(Appender<ILoggingEvent> appender) {
-        final Filter<ILoggingEvent> filter = new DroppingRavenLoggingFilter();
+        final Filter<ILoggingEvent> filter = new DroppingSentryLoggingFilter();
         filter.start();
         appender.addFilter(filter);
     }

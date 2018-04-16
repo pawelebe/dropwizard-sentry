@@ -1,6 +1,5 @@
-package org.dhatim.dropwizard.raven.logging;
+package org.dhatim.dropwizard.sentry.logging;
 
-import org.dhatim.dropwizard.raven.logging.RavenAppenderFactory;
 import ch.qos.logback.classic.AsyncAppender;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.spi.ILoggingEvent;
@@ -16,7 +15,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
 
-public class RavenAppenderFactoryTest {
+public class SentryAppenderFactoryTest {
 
     private final LoggerContext context = new LoggerContext();
     private final DropwizardLayoutFactory layoutFactory = new DropwizardLayoutFactory();
@@ -25,29 +24,29 @@ public class RavenAppenderFactoryTest {
 
     @Test
     public void hasValidDefaults() throws IOException, ConfigurationException {
-        final RavenAppenderFactory factory = new RavenAppenderFactory();
+        final SentryAppenderFactory factory = new SentryAppenderFactory();
 
         assertNull("default dsn is unset", factory.getDsn());
         assertFalse("default environment is empty", factory.getEnvironment().isPresent());
         assertFalse("default extraTags is empty", factory.getEnvironment().isPresent());
-        assertFalse("default ravenFactory is empty", factory.getRavenFactory().isPresent());
+        assertFalse("default sentryFactory is empty", factory.getSentryClientFactory().isPresent());
         assertFalse("default release is empty", factory.getRelease().isPresent());
         assertFalse("default serverName is empty", factory.getServerName().isPresent());
-        assertFalse("default tags are empty", factory.getTags().isPresent());
+        assertFalse("default tags are empty", factory.getMdcTags().isPresent());
     }
 
     @Test(expected = NullPointerException.class)
-    public void buildRavenAppenderShouldFailWithNullContext() {
-        new RavenAppenderFactory().build(null, "", null, levelFilterFactory, asyncAppenderFactory);
+    public void buildSentryAppenderShouldFailWithNullContext() {
+        new SentryAppenderFactory().build(null, "", null, levelFilterFactory, asyncAppenderFactory);
     }
 
     @Test
-    public void buildRavenAppenderShouldWorkWithValidConfiguration() {
-        final RavenAppenderFactory raven = new RavenAppenderFactory();
-        final String dsn = "https://user:pass@app.getsentry.com/id";
+    public void buildSentryAppenderShouldWorkWithValidConfiguration() {
+        final SentryAppenderFactory factory = new SentryAppenderFactory();
+        final String dsn = "https://user:pass@app.sentry.io/id";
 
         Appender<ILoggingEvent> appender
-                = raven.build(context, dsn, layoutFactory, levelFilterFactory, asyncAppenderFactory);
+                = factory.build(context, dsn, layoutFactory, levelFilterFactory, asyncAppenderFactory);
 
         assertThat(appender, instanceOf(AsyncAppender.class));
     }
