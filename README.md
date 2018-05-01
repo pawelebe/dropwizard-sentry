@@ -44,9 +44,9 @@ appenders:
 | Setting | Default | Description | Example Value |
 |---|---|---|---|
 | `threshold` | ALL | The log level to configure to send to Sentry | `ERROR` |
-| `dsn` |   | Data Source Name - `'https://{PUBLIC_KEY}:{SECRET_KEY}@sentry.io/{PROJECT_ID}'` | `https://foo:bar@sentry.io/12345` |
+| `dsn` |   | Data Source Name - format is `https://{PUBLIC_KEY}:{SECRET_KEY}@sentry.io/{PROJECT_ID}` | `https://foo:bar@sentry.io/12345` |
 | `environment` | [empty] | The environment your application is running in |  `production` |
-| `mdcTags` | [empty] | `Tag names to be extracted from logging MDC` | `['foo', 'bar']` |
+| `mdcTags` | [empty] | Tag names to be extracted from logging MDC | `['foo', 'bar']` |
 | `sentryClientFactory` | [empty] | Specify a custom [`SentryClientFactory`](https://github.com/getsentry/sentry-java/blob/master/sentry/src/main/java/io/sentry/SentryClientFactory.java) class | `com.example.SentryClientFactory` |
 | `release` | [empty] | The release version of your application | `1.0.0` |
 | `serverName` | [empty] | Override the server name (rather than looking it up dynamically) | `10.0.0.1` |
