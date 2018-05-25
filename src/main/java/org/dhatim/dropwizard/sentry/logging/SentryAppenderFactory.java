@@ -34,6 +34,9 @@ public class SentryAppenderFactory extends AbstractAppenderFactory<ILoggingEvent
     private Optional<String> environment = Optional.empty();
 
     @JsonProperty
+    private Optional<Map<String, String>> tags = Optional.empty();
+
+    @JsonProperty
     private Optional<Set<String>> mdcTags = Optional.empty();
 
     @JsonProperty
@@ -62,6 +65,14 @@ public class SentryAppenderFactory extends AbstractAppenderFactory<ILoggingEvent
 
     public void setEnvironment(Optional<String> environment) {
         this.environment = environment;
+    }
+
+    public Optional<Map<String, String>> getTags() {
+        return tags;
+    }
+
+    public void setTags(Optional<Map<String, String>> tags) {
+        this.tags = tags;
     }
 
     public Optional<Set<String>> getMdcTags() {
@@ -127,6 +138,7 @@ public class SentryAppenderFactory extends AbstractAppenderFactory<ILoggingEvent
         appender.setContext(context);
 
         environment.ifPresent(sentryClient::setEnvironment);
+        tags.ifPresent(sentryClient::setTags);
         mdcTags.ifPresent(sentryClient::setMdcTags);
         release.ifPresent(sentryClient::setRelease);
         serverName.ifPresent(sentryClient::setServerName);
