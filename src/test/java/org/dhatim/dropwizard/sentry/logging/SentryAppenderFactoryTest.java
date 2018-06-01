@@ -42,11 +42,11 @@ public class SentryAppenderFactoryTest {
 
     @Test
     public void buildSentryAppenderShouldWorkWithValidConfiguration() {
-        final SentryAppenderFactory factory = new SentryAppenderFactory();
-        final String dsn = "https://user:pass@app.sentry.io/id";
+        SentryAppenderFactory factory = new SentryAppenderFactory();
+        factory.setDsn("https://user:pass@app.sentry.io/id");
 
         Appender<ILoggingEvent> appender
-                = factory.build(context, dsn, layoutFactory, levelFilterFactory, asyncAppenderFactory);
+                = factory.build(context, "", layoutFactory, levelFilterFactory, asyncAppenderFactory);
 
         assertThat(appender, instanceOf(AsyncAppender.class));
     }
