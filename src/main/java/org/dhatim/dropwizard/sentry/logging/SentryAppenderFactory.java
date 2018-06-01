@@ -6,7 +6,6 @@ import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.filter.Filter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import static com.google.common.base.Preconditions.checkNotNull;
 import io.dropwizard.logging.AbstractAppenderFactory;
 import io.dropwizard.logging.async.AsyncAppenderFactory;
 import io.dropwizard.logging.filter.LevelFilterFactory;
@@ -14,12 +13,18 @@ import io.dropwizard.logging.layout.LayoutFactory;
 import io.sentry.DefaultSentryClientFactory;
 import io.sentry.SentryClient;
 import io.sentry.SentryClientFactory;
+import io.sentry.dsn.Dsn;
 import io.sentry.logback.SentryAppender;
+import org.dhatim.dropwizard.sentry.filters.DroppingSentryLoggingFilter;
+
+import javax.validation.constraints.NotNull;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import javax.validation.constraints.NotNull;
-import org.dhatim.dropwizard.sentry.filters.DroppingSentryLoggingFilter;
+import java.util.stream.Collectors;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @JsonTypeName("sentry")
 public class SentryAppenderFactory extends AbstractAppenderFactory<ILoggingEvent> {
@@ -50,6 +55,9 @@ public class SentryAppenderFactory extends AbstractAppenderFactory<ILoggingEvent
 
     @JsonProperty
     private Optional<Map<String, Object>> extra = Optional.empty();
+
+    @JsonProperty
+    private Optional<List<String>> stacktraceAppPackages = Optional.empty();
 
     public String getDsn() {
         return dsn;
@@ -115,12 +123,20 @@ public class SentryAppenderFactory extends AbstractAppenderFactory<ILoggingEvent
         this.extra = extra;
     }
 
+    public Optional<List<String>> getStacktraceAppPackages() {
+        return stacktraceAppPackages;
+    }
+
+    public void setStacktraceAppPackages(Optional<List<String>> stacktraceAppPackages) {
+        this.stacktraceAppPackages = stacktraceAppPackages;
+    }
+
     @Override
     public Appender<ILoggingEvent> build(LoggerContext context,
-            String applicationName,
-            LayoutFactory<ILoggingEvent> layoutFactory,
-            LevelFilterFactory<ILoggingEvent> levelFilterFactory,
-            AsyncAppenderFactory<ILoggingEvent> asyncAppenderFactory) {
+                                         String applicationName,
+                                         LayoutFactory<ILoggingEvent> layoutFactory,
+                                         LevelFilterFactory<ILoggingEvent> levelFilterFactory,
+                                         AsyncAppenderFactory<ILoggingEvent> asyncAppenderFactory) {
         checkNotNull(context);
 
         SentryClientFactory factory;
@@ -130,6 +146,10 @@ public class SentryAppenderFactory extends AbstractAppenderFactory<ILoggingEvent
             factory = factoryClass.newInstance();
         } catch (ReflectiveOperationException ex) {
             throw new RuntimeException(ex);
+        }
+        String dsn = this.dsn;
+        if (!new Dsn(dsn).getOptions().containsKey("stacktrace.app.packages")) {
+            dsn += "&stacktrace.app.packages=" + stacktraceAppPackages.map(list -> list.stream().collect(Collectors.joining(","))).orElse("");
         }
         SentryClient sentryClient = SentryClientFactory.sentryClient(dsn, factory);
 
