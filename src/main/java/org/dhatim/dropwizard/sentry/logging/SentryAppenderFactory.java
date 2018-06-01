@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import io.sentry.Sentry;
 import java.net.URI;
 
 @JsonTypeName("sentry")
@@ -170,6 +171,8 @@ public class SentryAppenderFactory extends AbstractAppenderFactory<ILoggingEvent
         release.ifPresent(sentryClient::setRelease);
         serverName.ifPresent(sentryClient::setServerName);
         extra.ifPresent(sentryClient::setExtra);
+
+        Sentry.setStoredClient(sentryClient);
 
         appender.addFilter(levelFilterFactory.build(threshold));
         getFilterFactories().stream().forEach(f -> appender.addFilter(f.build()));
