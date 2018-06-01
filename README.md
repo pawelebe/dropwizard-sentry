@@ -55,6 +55,8 @@ appenders:
 | `extra` | [empty] | Extra data to be sent with errors (but not as tags) | `{key1:'value1',key2:'value2'}` |
 | `stacktraceAppPackages` | [empty] | List of package prefixes used by application code | `['com.example','com.foo']` |
 
+If you need to set configuration properties not listed above, append them to the `dsn` as described [here](https://docs.sentry.io/clients/java/config/#configuration-via-the-dsn).
+
 ## Maven Artifacts
 
 This project is available in the [Central Repository](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22org.dhatim%22%20AND%20a%3A%22dropwizard-sentry%22). To add it to your project simply add the following dependency to your POM:
