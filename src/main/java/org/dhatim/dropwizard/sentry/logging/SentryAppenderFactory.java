@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import java.net.URI;
 
 @JsonTypeName("sentry")
 public class SentryAppenderFactory extends AbstractAppenderFactory<ILoggingEvent> {
@@ -133,10 +134,10 @@ public class SentryAppenderFactory extends AbstractAppenderFactory<ILoggingEvent
 
     @Override
     public Appender<ILoggingEvent> build(LoggerContext context,
-                                         String applicationName,
-                                         LayoutFactory<ILoggingEvent> layoutFactory,
-                                         LevelFilterFactory<ILoggingEvent> levelFilterFactory,
-                                         AsyncAppenderFactory<ILoggingEvent> asyncAppenderFactory) {
+            String applicationName,
+            LayoutFactory<ILoggingEvent> layoutFactory,
+            LevelFilterFactory<ILoggingEvent> levelFilterFactory,
+            AsyncAppenderFactory<ILoggingEvent> asyncAppenderFactory) {
         checkNotNull(context);
 
         SentryClientFactory factory;
@@ -148,8 +149,14 @@ public class SentryAppenderFactory extends AbstractAppenderFactory<ILoggingEvent
             throw new RuntimeException(ex);
         }
         String dsn = this.dsn;
-        if (!new Dsn(dsn).getOptions().containsKey("stacktrace.app.packages")) {
-            dsn += "&stacktrace.app.packages=" + stacktraceAppPackages.map(list -> list.stream().collect(Collectors.joining(","))).orElse("");
+        Map<String, String> options = new Dsn(dsn).getOptions();
+        if (!options.containsKey("stacktrace.app.packages")) {
+            if (URI.create(dsn).getQuery() == null) {
+                dsn += '?';
+            } else {
+                dsn += '&';
+            }
+            dsn += "stacktrace.app.packages=" + stacktraceAppPackages.map(list -> list.stream().collect(Collectors.joining(","))).orElse("");
         }
         SentryClient sentryClient = SentryClientFactory.sentryClient(dsn, factory);
 
