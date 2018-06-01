@@ -39,6 +39,7 @@ appenders:
     release: 1.0.0
     serverName: 10.0.0.1
     extra: {key1:'value1',key2:'value2'}
+    stacktraceAppPackages: ['com.example','com.foo']
 ```
 
 | Setting | Default | Description | Example Value |
@@ -52,6 +53,7 @@ appenders:
 | `release` | [empty] | The release version of your application | `1.0.0` |
 | `serverName` | [empty] | Override the server name (rather than looking it up dynamically) | `10.0.0.1` |
 | `extra` | [empty] | Extra data to be sent with errors (but not as tags) | `{key1:'value1',key2:'value2'}` |
+| `stacktraceAppPackages` | [empty] | List of package prefixes used by application code | `['com.example','com.foo']` |
 
 ## Maven Artifacts
 
