@@ -4,9 +4,12 @@ import ch.qos.logback.classic.Logger;
 import io.dropwizard.logging.async.AsyncLoggingEventAppenderFactory;
 import io.dropwizard.logging.filter.ThresholdLevelFilterFactory;
 import io.dropwizard.logging.layout.DropwizardLayoutFactory;
+
 import java.util.Optional;
 import java.util.Set;
+
 import static org.slf4j.Logger.ROOT_LOGGER_NAME;
+
 import org.slf4j.LoggerFactory;
 
 /**
@@ -16,7 +19,8 @@ import org.slf4j.LoggerFactory;
 public final class SentryBootstrap {
 
     private SentryBootstrap() {
-        /* No instance methods */ }
+        /* No instance methods */
+    }
 
     /**
      * Bootstrap the SLF4J root logger with a configured
@@ -32,9 +36,9 @@ public final class SentryBootstrap {
      * Bootstrap the SLF4J root logger with a configured
      * {@link io.sentry.logback.SentryAppender}.
      *
-     * @param dsn The DSN (Data Source Name) for your project
+     * @param dsn             The DSN (Data Source Name) for your project
      * @param cleanRootLogger If true, detach and stop all other appenders from
-     * the root logger
+     *                        the root logger
      */
     public static void bootstrap(final String dsn, boolean cleanRootLogger) {
         bootstrap(dsn, Optional.empty(), cleanRootLogger);
@@ -44,10 +48,10 @@ public final class SentryBootstrap {
      * Bootstrap the SLF4J root logger with a configured
      * {@link io.sentry.logback.SentryAppender}.
      *
-     * @param dsn The DSN (Data Source Name) for your project
-     * @param mdcTags Tag names to be extracted from logging MDC
+     * @param dsn             The DSN (Data Source Name) for your project
+     * @param mdcTags         Tag names to be extracted from logging MDC
      * @param cleanRootLogger If true, detach and stop all other appenders from
-     * the root logger
+     *                        the root logger
      */
     public static void bootstrap(final String dsn, Optional<Set<String>> mdcTags, boolean cleanRootLogger) {
         bootstrap(dsn, mdcTags, Optional.empty(), Optional.empty(), cleanRootLogger);
@@ -57,15 +61,15 @@ public final class SentryBootstrap {
      * Bootstrap the SLF4J root logger with a configured
      * {@link io.sentry.logback.SentryAppender}.
      *
-     * @param dsn The DSN (Data Source Name) for your project
-     * @param mdcTags Tag names to be extracted from logging MDC
-     * @param environment The environment name to pass to Sentry
-     * @param release The release name to pass to Sentry
+     * @param dsn             The DSN (Data Source Name) for your project
+     * @param mdcTags         Tag names to be extracted from logging MDC
+     * @param environment     The environment name to pass to Sentry
+     * @param release         The release name to pass to Sentry
      * @param cleanRootLogger If true, detach and stop all other appenders from
-     * the root logger
+     *                        the root logger
      */
     public static void bootstrap(final String dsn, Optional<Set<String>> mdcTags,
-            Optional<String> environment, Optional<String> release, boolean cleanRootLogger) {
+                                 Optional<String> environment, Optional<String> release, boolean cleanRootLogger) {
         bootstrap(dsn, mdcTags, environment, release, Optional.empty(), cleanRootLogger);
     }
 
@@ -73,29 +77,49 @@ public final class SentryBootstrap {
      * Bootstrap the SLF4J root logger with a configured
      * {@link io.sentry.logback.SentryAppender}.
      *
-     * @param dsn The DSN (Data Source Name) for your project
-     * @param mdcTags Tag names to be extracted from logging MDC
-     * @param environment The environment name to pass to Sentry
-     * @param release The release name to pass to Sentry
-     * @param serverName The server name to pass to Sentry
+     * @param dsn             The DSN (Data Source Name) for your project
+     * @param mdcTags         Tag names to be extracted from logging MDC
+     * @param environment     The environment name to pass to Sentry
+     * @param release         The release name to pass to Sentry
+     * @param serverName      The server name to pass to Sentry
      * @param cleanRootLogger If true, detach and stop all other appenders from
-     * the root logger
+     *                        the root logger
      */
     public static void bootstrap(final String dsn, Optional<Set<String>> mdcTags,
-            Optional<String> environment, Optional<String> release, Optional<String> serverName,
-            boolean cleanRootLogger) {
+                                 Optional<String> environment, Optional<String> release, Optional<String> serverName,
+                                 boolean cleanRootLogger){
+        bootstrap(dsn, Optional.empty(), mdcTags, environment, release, serverName, cleanRootLogger);
+    }
+
+    /**
+     * Bootstrap the SLF4J root logger with a configured
+     * {@link io.sentry.logback.SentryAppender}.
+     *
+     * @param dsn             The DSN (Data Source Name) for your project
+     * @param thresholdOptional log events threshold
+     * @param mdcTags         Tag names to be extracted from logging MDC
+     * @param environment     The environment name to pass to Sentry
+     * @param release         The release name to pass to Sentry
+     * @param serverName      The server name to pass to Sentry
+     * @param cleanRootLogger If true, detach and stop all other appenders from
+     *                        the root logger
+     */
+    public static void bootstrap(final String dsn, Optional<String> thresholdOptional, Optional<Set<String>> mdcTags,
+                                 Optional<String> environment, Optional<String> release, Optional<String> serverName,
+                                 boolean cleanRootLogger) {
         final SentryAppenderFactory factory = new SentryAppenderFactory();
         factory.setDsn(dsn);
         factory.setMdcTags(mdcTags);
         factory.setEnvironment(environment);
         factory.setRelease(release);
         factory.setServerName(serverName);
+        thresholdOptional.ifPresent(t -> factory.setThreshold(t));
 
         registerAppender(dsn, cleanRootLogger, factory);
     }
 
     private static void registerAppender(String dsn, boolean cleanRootLogger,
-            SentryAppenderFactory factory) {
+                                         SentryAppenderFactory factory) {
         final Logger root = (Logger) LoggerFactory.getLogger(ROOT_LOGGER_NAME);
 
         if (cleanRootLogger) {
@@ -108,5 +132,59 @@ public final class SentryBootstrap {
                 = new AsyncLoggingEventAppenderFactory();
         root.addAppender(factory.build(root.getLoggerContext(), dsn, layoutFactory, levelFilterFactory,
                 asyncAppenderFactory));
+    }
+
+    public static class Builder {
+
+        private final String dsn;
+        private Optional<String> thresholdOptional = Optional.empty();
+        private Optional<Set<String>> mdcTags = Optional.empty();
+        private Optional<String> environment = Optional.empty();
+        private Optional<String> release = Optional.empty();
+        private Optional<String> serverName = Optional.empty();
+        private boolean cleanRootLogger;
+
+        public static Builder withDsn(String dsn) {
+            Builder builder = new Builder(dsn);
+            return builder;
+        }
+
+        private Builder(String dsn) {
+            this.dsn = dsn;
+        }
+
+        public Builder withThreshold(String threshold) {
+            this.thresholdOptional = Optional.of(threshold);
+            return this;
+        }
+
+        public Builder withMdcTags(Set<String> mdcTags) {
+            this.mdcTags = Optional.of(mdcTags);
+            return this;
+        }
+
+        public Builder withEnvironment(String environment) {
+            this.environment = Optional.of(environment);
+            return this;
+        }
+
+        public Builder withRelease(String release) {
+            this.release = Optional.of(release);
+            return this;
+        }
+
+        public Builder withServerName(String serverName) {
+            this.serverName = Optional.of(serverName);
+            return this;
+        }
+
+        public Builder withCleanRootLogger(boolean cleanRootLogger) {
+            this.cleanRootLogger = cleanRootLogger;
+            return this;
+        }
+
+        public void bootstrap() {
+            SentryBootstrap.bootstrap(dsn, thresholdOptional, mdcTags, environment, release, serverName, cleanRootLogger);
+        }
     }
 }
